@@ -1,4 +1,12 @@
-body{background-color:blue;
+body{background-color:rgb(58, 57, 57);
+font-family:sans-serif;}
 
-}p{color: aliceblue;
+h1{color: #000;;
+font-size: large;
+font-family:monospace;}
+h2{
+    color: rgb(255, 255, 255);;
+font-family: serif ;
+}
+p{color: rgb(147, 155, 163);
 }
