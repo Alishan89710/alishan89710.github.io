@@ -1,0 +1,102 @@
+.body{ padding: 0;
+    margin:0;}
+    *{
+        
+        color: aliceblue;
+        
+         }
+    
+
+.container{
+    
+    background: linear-gradient(232deg, rgb(23 11 90) 0%, rgba(13,13,13,1) 40%, rgb(74 72 72) 100%);
+
+ }
+.listing{
+    display: inline-block;
+width: 49% ;
+font-size: 20px;
+font-family: 'Zen Dots', cursive;    
+    margin-top: -10px;
+    margin-left: -10px     
+}   
+.image{
+    display: inline-block;
+    
+position: absolute ;
+color: white;
+margin-top: -80px;
+margin-left: -31px;
+}
+.image-2{
+    margin-left: 1500px;
+    margin-top: -140px;    
+ } 
+
+
+
+.under{
+
+    padding: 7px;
+    color: oldlace;
+    margin-left: -20px;
+    font-size: 20px;
+    opacity: 1.9;
+    margin-inline-end: -185px;
+}    
+.heading-left{
+    font-family: 'Lobster', cursive;
+    margin-left: 80px;
+    margin-top: 140px   
+} 
+.under2{
+   color: rgb(106, 106, 156);
+    opacity:0.5 ;
+    font-size: 105px ;
+    margin-inline-start: 163px;
+}
+.heading-right{
+    margin-left: 278px;
+ font-family: 'Lobster', cursive;
+ margin-top: -90px;   
+ padding: 10px;
+}
+.last-heading{
+    color: rgb(106, 106, 156);
+    margin-left: 361px;
+    font-size: 65px;
+    margin-top: -165px;   
+    font-family: 'Lobster', cursive;
+    opacity:0.5 ;
+}
+.h5{
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    font-size: 30px;
+
+}
+.low{
+    font-family: 'Zen Dots', cursive; 
+    font-size: 24px;
+}
+.short{
+    margin-top:0px;
+    display: inline-block;
+    margin-left:60px ;
+}
+.link{
+ text-align: right;
+ margin-right: 20px;
+margin-left:1070px ;
+ font-size: 20px;
+display: inline-block;
+}
+.short-heading{
+    text-align: center; 
+}
+.simple{
+    font-size:75px;
+    text-align: center;
+    font-family:'Lobster', cursive; ;
+
+    
+}
