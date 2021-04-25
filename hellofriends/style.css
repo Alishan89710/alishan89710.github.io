@@ -27,7 +27,7 @@ background-color:black;
 }
 .image{
     margin-top:-50px ;
-    margin-left:2px ;
+    width:100% ;
 }
 .link-1,.link-2{
     font-size: 15px;
