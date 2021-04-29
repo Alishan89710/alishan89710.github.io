@@ -5,48 +5,116 @@
 body {
     margin: 0;
     padding: 0;
-    background-color: #1d1e20;
+    background-color: #535457;
 }
-
-.container {}
-
-.section {
-    width: 49%;
-    display: inline-block;
-    color: #fff;
+.icon-5,.icon-6,.icon-7,.icon-8,.icon-9{
+    font-size: 50px;
 }
-
-.section-left {}
-
-.section-left img {
-    width: 100%;
-    height: 100vh;
+.icon-5{
+    margin-left:13px ;
+    margin-top: 22px;
+    color:aliceblue;
 }
+.icon-6{
+    margin-left:13px ;
+    margin-top: 240px;
+    color:#070796;
+}
+.icon-7{
+    margin-left:13px ;
+    margin-top: 20px;
+    color: rgb(0 197 0) ;
+}
+.icon-8{
+    margin-left:13px ;
+    margin-top: 20px;
+    color: ;
+}
+.icon-9{
+    margin-left:13px ;
+    margin-top: 20px;
+color: rgb(66, 152, 206);
+}
+.container { 
+    margin: -45% auto;
+    height: 558px;
+    width: 85%;
+    padding: 30px;
+    background-color: #211818;}
 
-.section-left .image-text {
+    .section-right{
+        margin-left: 42%;
+    margin-top: -40px;
+border-bottom:2px solid  rgb(48, 200, 48) ;  
+}
+    .details{
+        word-spacing: 30px;
+    color: rgb(48, 200, 48);
+    }
+    .pera, .About-Me,.development-1,.development-2,.data-1,.data-2{
+        color: aliceblue;
+
+    }
+    
+    .icon-1{
+        color: rgb(48, 200, 48);
+        font-size: 35px;
+    }
+
+    .section-left img:hover{
+        zoom:120%;
+       width:40%;
+         border-radius:40% ;
+    }
+.section-left img{
+    width: 35%;
+    margin-left: -20px;
+    height: 600px;
+    margin-top: -15px;
+    position: absolute
+    
+}
+.image-text {
     position: absolute;
-    bottom: 50px;
     text-align: center;
-    width: 49%;
+    text-shadow: -3px -2px white;
+    width: 35%;
+    
+    margin-top: 30%;
+}
+.ali{
+    font-size: 50px;
+    font-family: monospace;
+}
+.web{
+    font-size: 20px;
+    font-family: fantasy;
+
+}
+.all-data{
+    margin-top:-35px ;
 }
 
-.section-left .image-text div {
-    font-weight: bold;
-    color: #36ad36;
-}
+.development-1,.development-2{
+    margin-left: 42%;   
 
-.section-right {
-    position: absolute;
-    top: 50px;
-    padding: 5px;
-    padding-left: 10px;
 }
-
-.section-right .about-me {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+.development-1{
+    margin-bottom: 6%;
+    margin-top: 82px;
 }
+.development-2{
+    margin-top: 10px;
+}
+.data-1,.data-2{
+     margin-left: 72%;
+    margin-bottom: 8%;
+    
+}
+.data-1{
+    margin-top: -31%;
+    margin-bottom: 54px;
+}
+.data-2{
 
-.section-right .services {
-    width: 49%;
-    display: inline-block;
 }
