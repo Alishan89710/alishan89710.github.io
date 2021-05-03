@@ -1,3 +1,16 @@
+@media screen and(max-width:900px) {
+    .container{ 
+        margin-left:10px;
+        height: 460px;
+        width: 20px;
+        margin-top:30px;
+        padding: 0px;
+        background-color: #f65959;}
+body{
+    background-color: blue;
+}    
+
+    }
 * {
     font-family: sans-serif;
 }
@@ -7,33 +20,33 @@ body {
     padding: 0;
     background-color: #535457;
 }
-.icon-5,.icon-6,.icon-7,.icon-8,.icon-9{
+.icon-5 a,.icon-6 a,.icon-7 a,.icon-8 a,.icon-9 a{
     font-size: 50px;
 }
 .icon-5{
     margin-left:13px ;
     margin-top: 22px;
-    color:aliceblue;
+   
 }
 .icon-6{
     margin-left:13px ;
     margin-top: 240px;
-    color:#070796;
+   
 }
 .icon-7{
     margin-left:13px ;
     margin-top: 20px;
-    color: rgb(0 197 0) ;
+   
 }
 .icon-8{
     margin-left:13px ;
     margin-top: 20px;
-    color: ;
+    
 }
 .icon-9{
     margin-left:13px ;
     margin-top: 20px;
-color: rgb(66, 152, 206);
+
 }
 .container { 
     margin: -45% auto;
@@ -51,11 +64,16 @@ border-bottom:2px solid  rgb(48, 200, 48) ;
         word-spacing: 30px;
     color: rgb(48, 200, 48);
     }
-    .pera, .About-Me,.development-1,.development-2,.data-1,.data-2{
+    .services,.pera, .About-Me,.development-1,.development-2,.data-1,.data-2{
         color: aliceblue;
 
     }
     
+    .pera,.development-1,.development-2,.data-1,.data-2{
+ font-size:14px;
+
+ text-transform: capitalize;
+    }
     .icon-1{
         color: rgb(48, 200, 48);
         font-size: 35px;
@@ -95,8 +113,17 @@ border-bottom:2px solid  rgb(48, 200, 48) ;
     margin-top:-35px ;
 }
 
-.development-1,.development-2{
+.services,.About-Me{
+ text-decoration:underline  ;
+
+}
+.development-1,.development-2,.services{
     margin-left: 42%;   
+
+}
+.services{
+    Margin-top: 56px;
+    margin-bottom: -55px;
 
 }
 .development-1{
@@ -112,7 +139,7 @@ border-bottom:2px solid  rgb(48, 200, 48) ;
     
 }
 .data-1{
-    margin-top: -31%;
+    margin-top: -28%;
     margin-bottom: 54px;
 }
 .data-2{
