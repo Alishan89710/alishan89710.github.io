@@ -2,15 +2,19 @@
 body{
     margin: 0px;
     padding: 0px;
-background-color:black;
+background-color:black !important;
+}
+.body-content{
+background-color:azure!important;
 }
 .main-container{
- margin:0px auto;
- width: 50%;
- height:100%;
- background: rgb(37,37,37);
- background: linear-gradient(100deg, rgba(37,37,37,0.8911939775910365) 0%, rgba(14,12,12,1) 40%, rgba(44,63,166,1) 100%);
- 
+    margin: 0px auto;
+    width: 56%;
+    height: 100% !important;
+    background: rgb(37,37,37);
+    background: linear-gradient(
+100deg
+, rgba(37,37,37,0.8911939775910365) 0%, rgba(14,12,12,1) 40%, rgba(44,63,166,1) 100%);
 }
 .form{
     font-family: fuchet,sans-serif;
@@ -58,4 +62,10 @@ background-color:black;
 .button{
     margin-top:15px ;
    
+}
+.signup-container{
+    background-color:lightgrey;
+    width:50vw;
+margin:0 auto; 
+    
 }

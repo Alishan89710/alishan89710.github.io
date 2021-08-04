@@ -1,0 +1,29 @@
+body{
+    margin: 0;
+    padding: 0;
+    
+}
+.main_container{
+    margin: 0 auto;
+    width: 49vw;
+    position: relative;
+    border: 2px solid black;
+    top: 21vh;
+    height: 45vh;
+    border-radius: 20px;    
+}
+.bulb_container {
+    text-align: center;
+    height: 40vh;
+}
+.button_container {
+    text-align: center;
+    position: relative;
+    bottom: 5vh;
+
+}
+.page-header{
+    position: relative;
+    text-align: center;
+    top: 15vh;
+}
