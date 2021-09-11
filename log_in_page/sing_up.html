@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+    <title>singUp</title>
+</head>
+
+<script src="./index.js"></script>
+<body id="back">
+    <div id="main_container" class="row g-3 align-items-center">
+            
+        <form onSubmit="return false">
+            <h1>Your Personal Data Is Required </h1>
+        <div class="">
+            <label for="first_n">First Name*</label>
+            <input type="text" placeholder="First Name" id="first_n" class="form-control rounded-pill shadow p-3 mb-2 ">
+        </div>  
+        <div class="">
+            <label for="first_L">Last Name*</label>
+            <input type="text" placeholder="last Name" id="first_L" class="form-control rounded-pill shadow p-3 mb-2">
+        </div>
+        <div class="">
+            <label for="f_name">Father's Name*</label>
+            <input type="text" placeholder="Father's Name" id="f_name" class="form-control rounded-pill shadow p-3 mb-2">
+        </div>
+        <div class=""><label for="address">Address*</label>
+            <input type="text" placeholder="address" id="C_address" class="form-control rounded-pill shadow p-3 mb-2">
+        </div>
+        <div class=""><label for="C_email">Email*</label>
+            <input type="email" placeholder="email" id="C_email" class="form-control rounded-pill  shadow p-3 mb-2">
+        </div>
+        
+            <div class="col-auto">
+                <label for="inputPassword6" class="col-form-label">Password</label>
+            </div>
+            <div class="col-auto">
+                <input id="C_password" class="form-control rounded-pill shadow p-3 mb-2"type="password" placeholder="password"  class="form-control rounded-pill shadow p-3 mb-2" >
+            </div>
+            <div class="E_submit">
+            <button class="btn btn-primary rounded-pill shadow-lg p-3 " onClick='onSignUp()'>Submit</button>
+            <button type="button" class="btn btn-link"><a href="./log_in.html">I HAVE AN ACCOUNT</a></button>
+            <!-- <input  class="btn btn-primary rounded-pill shadow-lg p-3 " type="submit" value="Submit" onClick="singUp()"> -->
+             <!-- <div class="alert alert-dark text-center" role="alert" id="message"></div> -->
+            </div>
+        
+        </div>
+
+
+    
+
+
+
+
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+        crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+        integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+        integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+        crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+        integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+        crossorigin="anonymous"></script
+    
+</body>
+
+</html>

@@ -1,0 +1,166 @@
+:root{
+    --background1:rgba(230,230,230,);
+    --shadow1: rgba(139, 133, 133, 0.5);
+    --shadow2 : rgba(255,255,255,0.85);
+    --color : black;
+    --displayproof:block; 
+}
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing:border-box;
+    font-family:sans-serif;
+}
+body{
+    height: 100vh;
+    width: 100%;
+    display:flex ;
+    justify-content: center;
+    align-items: center;
+  background: var(--background1);
+}
+.container{
+    max-width: 500px;
+    width: 100%;
+    padding: 45px;
+    padding-top: 60px;
+    padding-bottom: 60px;
+    border: 2px solid var(--background1);
+    box-shadow: 15px 15px 10px 5px var(--shadow1), 
+    -10px -10px 10px 5px var(--shadow2),
+    inset 15px 15px 10px 5px var(--shadow1), 
+    inset -10px -10px 10px 5px var(--shadow2) ;
+    margin-left:20px;
+    margin-right:20px;
+    border-radius:0px 120px 0px 120px;
+    min-height: 500px;
+    display: var(--displayproof)!important;
+}
+.user-details{
+    margin-top:30px;
+}
+.title{
+    width:100%;
+    text-align:center;
+    font-size: 60px;
+    font-weight:bold;
+    margin-bottom:20px;
+color: var(--color);
+}
+.input_box{
+    position: relative;
+    width:100%;
+    margin-bottom:35px;
+}
+.text_area{
+    width:100%;
+     height: 50px;
+     padding-left:15px ;
+     font-size: 18px;
+     border:2px solid var(--background);
+     outline:none;
+    background-color: transparent;
+    box-shadow:5px 10px 8px 0px var(--shadow1),
+    -5px 10px 8px 0px var(--shadow2),
+   inset 5px 10px 8px 0px var(--shadow1),
+   inset -5px -10px 8px 2px var(--shadow2) ;
+    border-radius:50px;
+    padding-top: 10px;
+}
+.text_area:active{
+        box-shadow:5px 5px 5px 0px var(--shadow1),
+        -5px 5px 5px 0px var(--shadow2),
+       inset 5px 5px 5px 0px var(--shadow1),
+       inset -5px -5px 5px 0px var(--shadow2) ;
+}
+.button{
+    width:100%;
+    height: 50px;
+}
+.button input{
+    width:100%;
+    height:100%;
+    font-weight: bold;
+    font-size: 23px;
+    background: var(--background1);
+    border: 1px solid var(--background1);
+    outline: none;
+    border-radius: 50px;
+    box-shadow:10px 10px 10px 0px var(--shadow1),
+    -5px -5px 7px 2px var(--shadow2);
+    cursor: pointer;
+}
+.button input:active{
+    box-shadow:5px 5px 5px 0px var(--shadow1),
+    -5px -5px 5px 0px var(--shadow2),
+   inset 5px 5px 5px 2px var(--shadow1),
+   inset -5px -5px 5px 2px var(--shadow2);   
+}
+.footer{
+    width:100%;
+    margin-top :25px;
+}
+.icon{
+    width:100%;
+    margin-top:25px;
+    margin-bottom:35px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+.icon>a>i{
+    height: 50px;
+    width: 50px;
+    padding: 12px;
+    font-size: 25px;
+    border-radius: 50px;
+    border: 2px solid var(--background1);
+    cursor: pointer;
+    outline: none;
+    box-shadow: 5px 5px 5px 2px var(--shadow1),
+    -2px -2px 5px 2px var(--shadow2),
+    inset 3px 3px 5px 2px var(--shadow1),
+    inset -2px -2px 5px 2px var(--shadow2);
+    text-align: center;
+}
+.fab fa-facebook{
+padding-left: 8px!important;
+color: rgb(13,16,233);
+}
+.fab fa-twitter{
+    padding-left: 13px !important;
+    color: rgb(9,117,228);
+}
+.fa fa-instagram{
+    color: rgb(240,10,201);
+}
+.fab fa-google-plus-g{
+    color: rgb(228,9,9);
+}
+.fab fa-pinterest{
+    color: rgb(223,10,10);
+}
+#targeted{
+    cursor: pointer;
+} 
+#sin_up{
+    cursor: pointer;
+}
+#main_container{
+    margin: 0 auto;
+    width: 49vw;
+    height: 100vh;
+    position: absolute;
+    /* top: 10px; */
+    bottom: 5vh;
+}
+.submit{
+    position: relative;
+    left: 90%;
+}
+#back{
+    background-image:url(./Background-Screening.svg);
+background-size: cover;
+background-attachment: fixed;
+position: relative;
+}
