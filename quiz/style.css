@@ -1,0 +1,118 @@
+    @import url('https://fonts.googleapis.com/css2?family=Akronim&display=swap');
+    * {
+        font-family: 'Gemunu Libre', sans-serif;
+        font-size: 2.5rem;
+        box-sizing: border-box;
+        font-weight: 300;
+    }
+    
+    html {
+        font-size: 62%;
+    }
+    
+    body {
+        margin: 0%;
+        padding: 0%;
+        background-color: aliceblue;
+    }
+    
+    .main-container {
+        display: grid;
+        place-items: center;
+        margin: 0% auto;
+        width: 100vw;
+        height: 100vh;
+        background-color: lightblue;
+    }
+    
+    .container {}
+    
+    .quiz_container {
+        /* text-align: center; */
+        width: 55vw;
+        background-color: #fff;
+        padding: 0rem 6rem;
+        border-radius: 1rem;
+        box-shadow: 0 3rem 4rem 0.3rem rgb(0 0 0 / 80%);
+    }
+    
+    .heder {
+        text-align: center;
+        font-family: 'Akronim', cursive;
+        font-size: 4.5rem;
+        /* font-weight: 400; */
+        margin: 1.5rem;
+    }
+    
+    .quiz_container li {
+        list-style: none;
+        margin-top: 1.5rem;
+    }
+    
+    input {
+        cursor: pointer;
+        /* font-size: 1.5rem; */
+        position: relative;
+        right: 4rem;
+    }
+    
+    label {
+        font-size: 1.5rem;
+        right: 4rem;
+        position: relative;
+    }
+    
+    .question>h2 {
+        font-size: 3.5rem;
+        font-weight: 300;
+        margin: 1rem 0 5rem 0;
+    }
+    
+    #submit,
+    .btn {
+        padding: 0.5rem 3rem;
+        outline: none;
+        font-size: 1.7rem;
+        box-shadow: 0 2rem 4rem 0.3rem rgb(0 0 0 / 70%);
+        border-radius: 10px;
+        font-size: 200;
+        display: block;
+        margin: auto;
+        border: none;
+        text-transform: uppercase;
+        background-color: #74b9ff;
+        margin-top: 4rem;
+    }
+    
+    .btn {
+        position: relative;
+        bottom: 3rem;
+        font-size: 1rem;
+        background-color: #55efc4;
+    }
+    
+    .btn:hover {
+        background-color: #00b894;
+    }
+    
+    #submit:hover {
+        background-color: #0984e3;
+    }
+    
+    #showsCore {
+        background-color: #b2bec3;
+        margin-top: 1rem;
+        padding: 0rem 7rem;
+        box-shadow: 0 2rem 2rem -0.7rem rgb(0 0 0 / 55%);
+        border-radius: 2rem;
+    }
+    
+    .scoreArea {
+        display: none;
+    }
+    
+    #showsCore h2 {
+        font-size: 2rem;
+        text-align: center;
+        padding-top: 1rem;
+    }
