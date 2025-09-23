@@ -1,0 +1,809 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Block Dodger — Upgraded Arcade</title>
+<style>
+  :root{
+    --ui-bg: rgba(0,0,0,0.6);
+    --neon-c: #00ffe1;
+    --accent: #ff45e9;
+  }
+  html,body{height:100%;margin:0;font-family:Inter, system-ui, Arial; background:#000;}
+  #gameCanvas{display:block; width:100vw; height:100vh;}
+  .ui{
+    position:fixed; left:12px; top:12px; z-index:50; color:#fff;
+    display:flex; gap:12px; align-items:center;
+  }
+  .right-ui{left:auto; right:12px;}
+  .controls { position:fixed; left:50%; transform:translateX(-50%); top:12px; z-index:60; display:flex; gap:8px; }
+  button { background:linear-gradient(90deg,var(--neon-c),var(--accent)); border:none; padding:8px 12px; border-radius:8px; color:#001; font-weight:700; cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,0.6); }
+  button.ghost{ background:transparent; color:white; border:1px solid rgba(255,255,255,0.08); box-shadow:none; }
+  #hud { position:fixed; left:12px; bottom:12px; z-index:60; color:#fff; background:var(--ui-bg); padding:8px 10px; border-radius:10px; min-width:180px;}
+  #powerups { display:flex; gap:8px; align-items:center; }
+  .power { background:rgba(255,255,255,0.06); padding:6px 8px; border-radius:8px; font-size:12px;}
+  #startScreen, #gameOverScreen {
+    position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:100;
+    background:linear-gradient(180deg, rgba(0,0,0,0.85), rgba(0,0,0,0.6)); color:#fff; opacity:0; pointer-events:none;
+    transition:opacity .4s ease;
+  }
+  #startScreen.visible, #gameOverScreen.visible { opacity:1; pointer-events:auto; }
+  .panel { background:rgba(12,12,12,0.5); padding:20px; border-radius:14px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.7); }
+  #onScreenBtns { position:fixed; bottom:12px; left:50%; transform:translateX(-50%); z-index:70; display:flex; gap:12px; }
+  .touchBtn { width:64px;height:64px;border-radius:50%; background:rgba(255,255,255,0.06); display:flex;align-items:center;justify-content:center; font-size:26px;color:white; }
+  .small { font-size:12px; padding:6px 8px;}
+  #achievements {position:fixed; right:12px; bottom:12px; z-index:60; color:#fff; background:var(--ui-bg); padding:8px 10px; border-radius:10px; max-width:240px;}
+  .modeToggle { display:inline-flex; gap:8px; align-items:center; }
+  .fade { transition:opacity .35s ease; }
+</style>
+</head>
+<body>
+
+<canvas id="gameCanvas"></canvas>
+
+<div class="controls">
+  <button id="startBtn">▶ Start</button>
+  <button id="pauseBtn" class="ghost" disabled>⏸ Pause</button>
+  <button id="modeBtn" class="ghost">Mode: Endless</button>
+  <button id="muteBtn" class="ghost">🔊</button>
+</div>
+
+<div class="ui right-ui">
+  <div id="leaderboardBtn" class="small ghost">Leaderboard</div>
+</div>
+
+<div id="hud">
+  <div>Score: <span id="score">0</span> &nbsp; | &nbsp; High: <span id="high">0</span></div>
+  <div id="powerups" style="margin-top:8px;"></div>
+</div>
+
+<div id="achievements">
+  <strong>Achievements</strong>
+  <ul id="achList" style="padding-left:18px;margin:8px 0 0 0;"></ul>
+</div>
+
+<div id="onScreenBtns" aria-hidden="true">
+  <div id="leftBtn" class="touchBtn">◀</div>
+  <div id="rightBtn" class="touchBtn">▶</div>
+</div>
+
+<!-- Start Screen -->
+<div id="startScreen" class="fade visible">
+  <div class="panel">
+    <h1 style="margin:0 0 8px 0;color:var(--neon-c)">🚀 Block Dodger</h1>
+    <p style="margin:0 0 12px 0;">Polished arcade with parallax, power-ups, boss, tilt & swipe control.</p>
+    <div style="display:flex;gap:8px;justify-content:center;">
+      <button id="startNow">Start Endless</button>
+      <button id="startTimeAttack" class="ghost">Start 60s</button>
+    </div>
+    <p style="margin-top:10px;font-size:13px;opacity:.8;">Use ← → or A/D. Swipe or tilt to move on mobile. P to pause.</p>
+  </div>
+</div>
+
+<!-- Game Over Screen -->
+<div id="gameOverScreen" class="fade">
+  <div class="panel">
+    <h2 id="goTitle">Game Over</h2>
+    <div id="finalText" style="margin-top:8px;">Score: 0</div>
+    <div style="margin-top:12px;display:flex;gap:8px;justify-content:center;">
+      <button id="restartBtn">Restart</button>
+      <button id="toMenuBtn" class="ghost">Main Menu</button>
+    </div>
+  </div>
+</div>
+
+<!-- Leaderboard modal (simple local) -->
+<div id="leaderboardModal" style="position:fixed;inset:20% 20%;display:none;z-index:200;background:rgba(6,6,6,0.85);color:#fff;padding:20px;border-radius:8px">
+  <h3>Top Scores</h3>
+  <ol id="scoreList"></ol>
+  <div style="margin-top:12px;"><button id="closeLb">Close</button></div>
+</div>
+
+<script>
+/* ========= Game: single-file upgraded implementation =========
+   Features included: parallax stars, planet, spaceship, powerups,
+   boss, levels, swipe & tilt, pause, achievements, local leaderboard,
+   sound fx via WebAudio.
+*/
+
+// -- Setup canvas
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d', { alpha: false });
+let DPR = window.devicePixelRatio || 1;
+function resize(){ 
+  DPR = window.devicePixelRatio || 1;
+  canvas.width = Math.round(window.innerWidth * DPR);
+  canvas.height = Math.round(window.innerHeight * DPR);
+  canvas.style.width = window.innerWidth + 'px';
+  canvas.style.height = window.innerHeight + 'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize', resize);
+resize();
+
+// -- DOM refs
+const startScreen = document.getElementById('startScreen');
+const gameOverScreen = document.getElementById('gameOverScreen');
+const startBtn = document.getElementById('startBtn');
+const startNow = document.getElementById('startNow');
+const startTimeAttack = document.getElementById('startTimeAttack');
+const pauseBtn = document.getElementById('pauseBtn');
+const restartBtn = document.getElementById('restartBtn');
+const toMenuBtn = document.getElementById('toMenuBtn');
+const scoreEl = document.getElementById('score');
+const highEl = document.getElementById('high');
+const powerupsEl = document.getElementById('powerups');
+const leftBtn = document.getElementById('leftBtn');
+const rightBtn = document.getElementById('rightBtn');
+const modeBtn = document.getElementById('modeBtn');
+const muteBtn = document.getElementById('muteBtn');
+const achList = document.getElementById('achList');
+const leaderboardBtn = document.getElementById('leaderboardBtn');
+const leaderboardModal = document.getElementById('leaderboardModal');
+const scoreList = document.getElementById('scoreList');
+const closeLb = document.getElementById('closeLb');
+const onScreenBtns = document.getElementById('onScreenBtns');
+
+// -- Audio: tiny helper using WebAudio for short FX
+const AudioCtx = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+let muted = false;
+function ensureAudio(){ if(!audioCtx) audioCtx = new AudioCtx(); }
+function beep(freq=440, time=0.08, type='sine', vol=0.08){
+  if(muted) return;
+  ensureAudio();
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.value = vol;
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(); o.stop(audioCtx.currentTime + time);
+}
+// small explosion-ish with noise-ish approach
+function fxPop(){
+  if(muted) return;
+  ensureAudio();
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type='triangle'; o.frequency.value=220;
+  g.gain.value=0.06;
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start();
+  o.frequency.exponentialRampToValueAtTime(80, audioCtx.currentTime + 0.12);
+  g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+  o.stop(audioCtx.currentTime + 0.13);
+}
+
+// -- Game state
+let running=false, paused=false;
+let mode = 'endless'; // 'endless' | 'time'
+let timeAttackRemaining = 60;
+let hiScore = Number(localStorage.getItem('bd_hi') || 0);
+highEl.textContent = hiScore;
+let score = 0, streak = 0;
+let lastSpawn = 0;
+let spawnRate = 0.02; // base
+let gravity = 0; // not used but kept
+let level = 1; // every 50 points level up
+let elapsedSinceStart = 0;
+let oneHit = false; // sudden death toggle if wanted (not exposed in UI currently)
+
+// Entities
+const starsLayers = [];
+const obstacles = [];
+const powerups = [];
+const particles = [];
+let player = null;
+let bossCooldown = 0;
+
+// init star layers for parallax
+function initStars(){
+  starsLayers.length = 0;
+  const w = window.innerWidth, h = window.innerHeight;
+  // three layers: far, mid, near
+  for(let layer=0; layer<3; layer++){
+    const arr = [];
+    const count = [80, 50, 30][layer];
+    for(let i=0;i<count;i++){
+      arr.push({
+        x: Math.random()*w, y: Math.random()*h,
+        r: Math.random()*(layer+1)*0.9 + 0.2,
+        s: (0.2 + layer*0.25) + Math.random()*0.25
+      });
+    }
+    starsLayers.push({arr, speedMul: 0.3 + layer*0.6});
+  }
+}
+initStars();
+
+// Add a planet/nebula layer
+const planet = {
+  x: null, y: null, r: 0, hue: 200, rot: 0
+};
+function resetPlanet(){
+  planet.r = Math.min(window.innerWidth, window.innerHeight) * (0.08 + Math.random()*0.12);
+  planet.x = Math.random() * window.innerWidth * 0.7 + window.innerWidth*0.15;
+  planet.y = Math.random() * window.innerHeight * 0.45 + window.innerHeight*0.08;
+  planet.hue = 160 + Math.random()*120;
+  planet.rot = Math.random()*Math.PI*2;
+}
+resetPlanet();
+
+// Player: glowing triangle spaceship
+function spawnPlayer(){
+  player = {
+    x: window.innerWidth/2,
+    y: window.innerHeight - 90,
+    w: 44,
+    h: 44,
+    vx: 0,
+    speed: 8,
+    shield: 0,
+    slow: 0,
+    multi: 1,
+    lastHit: 0
+  };
+}
+
+// Obstacle factory
+function spawnObstacle(kind='normal'){
+  // kind: normal, fast, big, boss
+  const w = window.innerWidth;
+  if(kind === 'boss'){
+    const bw = Math.floor(w * (0.32 + Math.random()*0.06));
+    obstacles.push({
+      x: Math.random()*(w-bw),
+      y: -120, w: bw, h: 80 + Math.random()*40,
+      speed: 2 + level*0.2,
+      type: 'boss',
+      hp: 2 + level
+    });
+    return;
+  }
+  if(kind === 'fast'){
+    obstacles.push({
+      x: Math.random()*(w-28),
+      y: -40, w: 28, h:28,
+      speed: 5 + level*0.5,
+      type: 'fast'
+    });
+  } else if(kind === 'big'){
+    const bw = 70 + Math.random()*60;
+    obstacles.push({
+      x: Math.random()*(w-bw),
+      y: -80, w: bw, h: bw,
+      speed: 2 + level*0.15,
+      type: 'big'
+    });
+  } else {
+    obstacles.push({
+      x: Math.random()*(w-50),
+      y: -50, w: 50, h:50,
+      speed: 3 + level*0.2,
+      type: 'normal'
+    });
+  }
+}
+
+// Powerup factory
+function spawnPowerup(){
+  const types = ['shield','slow','mult'];
+  const t = types[Math.floor(Math.random()*types.length)];
+  powerups.push({
+    x: Math.random()*(window.innerWidth-28),
+    y: -30, w:28, h:28, type: t, speed: 2
+  });
+}
+
+// Particle explosion
+function spawnParticles(x,y,col='orange',count=24){
+  for(let i=0;i<count;i++){
+    particles.push({
+      x, y,
+      vx: (Math.random()-0.5)*6,
+      vy: (Math.random()-0.5)*6,
+      life: 40 + Math.random()*20,
+      col
+    });
+  }
+}
+
+// Achievements system
+const achievements = {
+  'first10': {text:'Beginner — Score 10', got:false},
+  'survive100': {text:'Survivor — 100s survived', got:false},
+  'streak5': {text:'Flawless — 5 streak', got:false},
+  'bossDefeat': {text:'Boss Slayer', got:false}
+};
+function pushAchievement(key){
+  if(!achievements[key] || achievements[key].got) return;
+  achievements[key].got = true;
+  const li = document.createElement('li');
+  li.textContent = achievements[key].text;
+  achList.appendChild(li);
+  beep(880,0.09,'sine',0.12);
+}
+
+// Leaderboard (local)
+function saveScore(n){
+  const arr = JSON.parse(localStorage.getItem('bd_scores')||'[]');
+  arr.push({score:n, t:Date.now()});
+  arr.sort((a,b)=>b.score-a.score);
+  const top = arr.slice(0,10);
+  localStorage.setItem('bd_scores', JSON.stringify(top));
+}
+function showLeaderboard(){
+  scoreList.innerHTML = '';
+  const arr = JSON.parse(localStorage.getItem('bd_scores')||'[]');
+  if(arr.length===0){ scoreList.innerHTML='<li>(no scores)</li>'; return;}
+  arr.slice(0,5).forEach(it=>{
+    const li = document.createElement('li');
+    li.textContent = `${it.score} — ${new Date(it.t).toLocaleString()}`;
+    scoreList.appendChild(li);
+  });
+  leaderboardModal.style.display='block';
+}
+
+// HUD powerups display
+function refreshPowerupsHUD(){
+  powerupsEl.innerHTML='';
+  if(!player) return;
+  if(player.shield>0){
+    const d = document.createElement('div'); d.className='power'; d.textContent = `🛡 Shield (${Math.ceil(player.shield)})`;
+    powerupsEl.appendChild(d);
+  }
+  if(player.slow>0){
+    const d = document.createElement('div'); d.className='power'; d.textContent = `🐢 Slow (${Math.ceil(player.slow)}s)`;
+    powerupsEl.appendChild(d);
+  }
+  if(player.multi>1){
+    const d = document.createElement('div'); d.className='power'; d.textContent = `×${player.multi} Score`;
+    powerupsEl.appendChild(d);
+  }
+}
+
+// Controls (keyboard)
+const keys = {};
+window.addEventListener('keydown', (e)=>{ keys[e.key] = true;
+  if(e.key==='p' || e.key==='P'){ togglePause(); }
+});
+window.addEventListener('keyup', (e)=>{ keys[e.key] = false; });
+
+// touch swipe detection
+let touchStartX = null;
+let activeTouchId = null;
+window.addEventListener('touchstart', (e)=>{
+  const t = e.changedTouches[0];
+  touchStartX = t.clientX;
+  activeTouchId = t.identifier;
+});
+window.addEventListener('touchmove', (e)=>{
+  if(touchStartX===null) return;
+  for(const t of e.changedTouches){
+    if(t.identifier===activeTouchId){
+      const dx = t.clientX - touchStartX;
+      if(Math.abs(dx)>20){
+        if(dx>0) keys['ArrowRight'] = true, keys['ArrowLeft']=false;
+        else keys['ArrowLeft'] = true, keys['ArrowRight']=false;
+      }
+    }
+  }
+});
+window.addEventListener('touchend', (e)=>{
+  touchStartX = null; activeTouchId = null;
+  keys['ArrowLeft']=false; keys['ArrowRight']=false;
+});
+
+// on-screen buttons
+leftBtn.addEventListener('touchstart', ()=>{ keys['ArrowLeft']=true; });
+leftBtn.addEventListener('touchend', ()=>{ keys['ArrowLeft']=false; });
+rightBtn.addEventListener('touchstart', ()=>{ keys['ArrowRight']=true; });
+rightBtn.addEventListener('touchend', ()=>{ keys['ArrowRight']=false; });
+
+// tilt controls (optional)
+let tiltEnabled = false;
+function tryEnableTilt(){
+  if(typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function'){
+    // iOS 13+ requires explicit permission
+    DeviceOrientationEvent.requestPermission().then(res=>{
+      if(res==='granted'){
+        window.addEventListener('deviceorientation', handleTilt);
+        tiltEnabled = true;
+      }
+    }).catch(()=>{ /* ignore */});
+  } else {
+    window.addEventListener('deviceorientation', handleTilt);
+    tiltEnabled = true;
+  }
+}
+function handleTilt(e){
+  if(!player) return;
+  // gamma: left-right tilt in degrees (-90 to 90)
+  const g = e.gamma || 0;
+  // map g to player.vx
+  player.vx = (g/30) * player.speed;
+}
+
+// Game lifecycle functions
+let lastFrame = 0;
+function startGame(optMode){
+  if(optMode) mode = optMode;
+  startScreen.classList.remove('visible');
+  gameOverScreen.classList.remove('visible');
+  running = true; paused = false;
+  elapsedSinceStart = 0; timeAttackRemaining = 60;
+  spawnInitial();
+  spawnPlayer();
+  score = 0; streak = 0; level = 1; spawnRate = 0.02; bossCooldown = 0;
+  pauseBtn.disabled = false;
+  modeBtn.textContent = 'Mode: ' + (mode==='endless'?'Endless':'Time Attack');
+  lastFrame = performance.now();
+  requestAnimationFrame(loop);
+  ensureAudio();
+}
+function spawnInitial(){ obstacles.length=0; powerups.length=0; particles.length=0; initStars(); resetPlanet(); }
+function endGame(cause='lost'){
+  running=false;
+  gameOverScreen.classList.add('visible');
+  document.getElementById('finalText').innerHTML = `Score: ${score} <br> Level: ${level}`;
+  if(score>hiScore){ hiScore = score; localStorage.setItem('bd_hi', hiScore); highEl.textContent = hiScore; }
+  saveScore(score);
+  refreshPowerupsHUD();
+  pauseBtn.disabled = true;
+  // achievements: check survive100
+  if(elapsedSinceStart >= 100000 && !achievements.survive100.got){
+    pushAchievement('survive100');
+  }
+}
+function togglePause(){
+  if(!running) return;
+  paused = !paused;
+  pauseBtn.textContent = paused ? '▶ Resume' : '⏸ Pause';
+  if(!paused) { lastFrame = performance.now(); requestAnimationFrame(loop); }
+}
+
+// game loop
+function loop(ts){
+  if(!running || paused) return;
+  const dt = Math.min(40, ts - lastFrame); // ms
+  lastFrame = ts;
+  update(dt/1000);
+  draw();
+  requestAnimationFrame(loop);
+}
+
+// update logic
+function update(dt){
+  elapsedSinceStart += dt*1000;
+  // controls handle: keys
+  let dir = 0;
+  if(keys['ArrowLeft'] || keys['a']) dir -= 1;
+  if(keys['ArrowRight']|| keys['d']) dir += 1;
+  // apply tilt vx if present
+  if(player){
+    if(typeof player.vx !== 'undefined'){
+      player.x += player.vx;
+    }
+    player.x += dir * player.speed;
+    // clamp
+    player.x = Math.max(10, Math.min(window.innerWidth - 10 - player.w, player.x));
+  }
+  // update stars parallax
+  starsLayers.forEach((layer, idx)=>{
+    layer.arr.forEach(s=>{
+      s.y += s.s * (0.5 + idx*0.6) * (1); // baseline
+      if(s.y > window.innerHeight) s.y = -2, s.x = Math.random()*window.innerWidth;
+    });
+  });
+  // planet rotates slowly
+  planet.rot += 0.005 * (1 + level*0.04);
+
+  // spawn obstacles & powerups
+  lastSpawn += dt;
+  if(Math.random() < spawnRate * dt * 60){ // scale with dt
+    // choose type by probability influenced by level
+    const r = Math.random();
+    if(r < 0.65) spawnObstacle('normal');
+    else if(r < 0.80) spawnObstacle('fast');
+    else if(r < 0.95) spawnObstacle('big');
+    else if(bossCooldown <= 0) { spawnObstacle('boss'); bossCooldown = 20 + Math.random()*30; }
+    // occasional powerup
+    if(Math.random() < 0.08) spawnPowerup();
+    // adjust spawnRate a bit with level
+    spawnRate = 0.02 + Math.min(0.08, 0.002 * level);
+  }
+  bossCooldown -= dt;
+
+  // time attack check
+  if(mode === 'time'){
+    timeAttackRemaining -= dt;
+    if(timeAttackRemaining <= 0){ endGame('timeup'); return; }
+  }
+
+  // update obstacles movement
+  obstacles.forEach(o=>{
+    // if slow active, obstacles move slower
+    let slowMul = (player && player.slow>0) ? 0.45 : 1;
+    o.y += (o.speed || (3+level*0.2)) * slowMul;
+    // boss can have slight horizontal sway
+    if(o.type === 'boss'){
+      o.x += Math.sin(elapsedSinceStart/700 + o.x) * 0.8;
+    }
+    // collision detection
+    if(player && !player.invul && collides(player, o)){
+      if(player.shield > 0){
+        player.shield = 0;
+        fxPop();
+        spawnParticles(player.x+player.w/2, player.y+player.h/2, 'cyan', 18);
+        // clear obstacle or reduce boss hp
+        if(o.type === 'boss'){ o.hp--; if(o.hp<=0){ // boss defeated
+          spawnParticles(o.x+o.w/2, o.y+o.h/2, 'magenta', 34);
+          // reward big points
+          score += 15 * player.multi;
+          pushAchievement('bossDefeat');
+        } }
+        // remove smaller obstacles on shield hit
+        if(o.type !== 'boss') o.y = window.innerHeight + 100;
+      } else {
+        // if oneHit mode => immediate end
+        if(oneHit) return endGame('hit');
+        // else consume life: in this simplified version, immediate end
+        spawnParticles(player.x+player.w/2, player.y+player.h/2, 'orange', 36);
+        beep(120,0.2,'sawtooth',0.18);
+        endGame('hit');
+        return;
+      }
+    }
+  });
+  // remove off-screen
+  for(let i=obstacles.length-1;i>=0;i--) if(obstacles[i].y > window.innerHeight + 200) obstacles.splice(i,1);
+
+  // powerups movement & pickups
+  for(let i=powerups.length-1;i>=0;i--){
+    const p = powerups[i];
+    p.y += p.speed * (player && player.slow>0 ? 0.45 : 1);
+    if(player && collides(player, p)){
+      // apply
+      if(p.type === 'shield'){ player.shield = 1 + 0.1*level; }
+      if(p.type === 'slow'){ player.slow = 5; }
+      if(p.type === 'mult'){ player.multi = 2; setTimeout(()=>{ player.multi = 1; }, 10000); }
+      fxPop();
+      powerups.splice(i,1);
+    } else if(p.y > window.innerHeight + 50) powerups.splice(i,1);
+  }
+
+  // particles update
+  for(let i=particles.length-1;i>=0;i--){
+    const q = particles[i];
+    q.x += q.vx; q.y += q.vy; q.life -= 1;
+    if(q.life <= 0) particles.splice(i,1);
+  }
+
+  // timers: slow & shield durations (reduce)
+  if(player){
+    if(player.slow > 0) { player.slow -= dt; if(player.slow <= 0) player.slow = 0;}
+    if(player.shield > 0) { player.shield -= dt; if(player.shield <= 0) player.shield = 0;}
+    // reduce streak over time maybe
+  }
+
+  // scoring: increment by survival / spawn? we already incremented when created, but let's increment per obstacle dodged
+  // As a simple approach: if obstacle passes bottom, award 1 point
+  for(let i=0;i<obstacles.length;i++){
+    const o = obstacles[i];
+    if(!o.scored && o.y > window.innerHeight + 10){
+      // already removed by earlier loop, but mark safe
+      o.scored = true;
+      score += Math.ceil(1 * (player?player.multi:1));
+      // track streak on success
+      streak++;
+      if(streak === 5) { score += 5; pushAchievement('streak5'); }
+      if(score >= 10 && !achievements.first10.got) pushAchievement('first10');
+      if(score > hiScore) { hiScore = score; localStorage.setItem('bd_hi', hiScore); highEl.textContent = hiScore; }
+    }
+  }
+
+  // level progression: every 50 points
+  const newLevel = Math.floor(score / 50) + 1;
+  if(newLevel > level){
+    level = newLevel;
+    // level-up cosmetic: change planet hue & increase difficulty
+    resetPlanet();
+    spawnRate += 0.006;
+    // small reward
+    beep(1200,0.07,'sine',0.08);
+  }
+
+  refreshPowerupsHUD();
+  scoreEl.textContent = score;
+}
+
+// Collision helper (AABB)
+function collides(a,b){
+  return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+}
+
+// Draw logic
+function draw(){
+  // clear + background gradient with planet
+  const w = window.innerWidth, h = window.innerHeight;
+  // gradient base changes with level
+  const g = ctx.createLinearGradient(0,0,0,h);
+  const hue = (planet.hue + level*10) % 360;
+  g.addColorStop(0, `hsl(${hue}, 60%, 4%)`);
+  g.addColorStop(1, `hsl(${(hue+60)%360}, 90%, 2%)`);
+  ctx.fillStyle = g;
+  ctx.fillRect(0,0,w,h);
+
+  // draw planet/nebula
+  const lg = ctx.createRadialGradient(planet.x, planet.y, planet.r*0.1, planet.x, planet.y, planet.r*1.6);
+  lg.addColorStop(0, `hsla(${planet.hue},70%,60%,0.9)`);
+  lg.addColorStop(0.5, `hsla(${(planet.hue+30)%360},80%,40%,0.25)`);
+  lg.addColorStop(1, `rgba(0,0,0,0)`);
+  ctx.save();
+  ctx.translate(planet.x, planet.y);
+  ctx.rotate(planet.rot);
+  ctx.translate(-planet.x, -planet.y);
+  ctx.fillStyle = lg;
+  ctx.beginPath();
+  ctx.ellipse(planet.x, planet.y, planet.r, planet.r*0.6, 0, 0, Math.PI*2);
+  ctx.fill();
+  ctx.restore();
+
+  // draw star layers (farthest first)
+  starsLayers.forEach((layer, idx)=>{
+    ctx.globalAlpha = 0.8 - idx*0.15;
+    ctx.fillStyle = 'rgba(180,255,255,0.9)';
+    layer.arr.forEach(s=>{
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fill();
+    });
+  });
+  ctx.globalAlpha = 1;
+
+  // draw powerups
+  powerups.forEach(p=>{
+    ctx.fillStyle = (p.type==='shield') ? 'cyan' : (p.type==='slow' ? 'violet' : 'gold');
+    ctx.beginPath();
+    ctx.rect(p.x, p.y, p.w, p.h);
+    ctx.fill();
+    ctx.fillStyle='black';
+    ctx.fillText(p.type[0].toUpperCase(), p.x+8, p.y+20);
+  });
+
+  // draw obstacles
+  obstacles.forEach(o=>{
+    if(o.type === 'boss'){
+      ctx.fillStyle = 'rgba(255,80,200,0.95)';
+      ctx.fillRect(o.x, o.y, o.w, o.h);
+      // HP bar
+      ctx.fillStyle='black';
+      ctx.fillRect(o.x, o.y-8, o.w, 5);
+      ctx.fillStyle='lime';
+      const hpw = Math.max(0, (o.hp/(2+level)))*o.w;
+      ctx.fillRect(o.x, o.y-8, hpw, 5);
+    } else {
+      ctx.fillStyle = (o.type==='fast') ? 'yellow' : (o.type==='big' ? 'mediumpurple' : 'crimson');
+      ctx.fillRect(o.x, o.y, o.w, o.h);
+    }
+  });
+
+  // draw particles
+  particles.forEach(p=>{
+    ctx.globalAlpha = Math.max(0.1, Math.min(1, p.life/40));
+    ctx.fillStyle = p.col;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 3, 0, Math.PI*2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+
+  // draw player spaceship as triangle with glow
+  if(player){
+    const cx = player.x + player.w/2, cy = player.y + player.h/2;
+    // glow
+    ctx.save();
+    ctx.shadowBlur = 18; ctx.shadowColor = 'cyan';
+    ctx.fillStyle = 'lime';
+    ctx.beginPath();
+    ctx.moveTo(player.x + player.w/2, player.y);
+    ctx.lineTo(player.x + player.w, player.y + player.h);
+    ctx.lineTo(player.x, player.y + player.h);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+    // hull edge
+    ctx.strokeStyle = 'rgba(0,0,0,0.2)'; ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(player.x + player.w/2, player.y);
+    ctx.lineTo(player.x + player.w, player.y + player.h);
+    ctx.lineTo(player.x, player.y + player.h);
+    ctx.closePath();
+    ctx.stroke();
+
+    // shield ring
+    if(player.shield > 0){
+      ctx.strokeStyle = 'rgba(0,255,255,0.9)';
+      ctx.beginPath();
+      ctx.arc(cx, cy, player.w*0.9, 0, Math.PI*2);
+      ctx.stroke();
+    }
+  }
+
+  // HUD drawing overlay baselines (score already in DOM)
+  // draw level indicator top-left
+  ctx.fillStyle = 'rgba(255,255,255,0.06)';
+  ctx.fillRect(12, 42, 150, 26);
+  ctx.fillStyle = 'white'; ctx.font = '14px Inter, Arial';
+  ctx.fillText(`Level: ${level}`, 18, 62);
+
+  // if time attack, draw remaining time
+  if(mode === 'time'){
+    ctx.fillStyle='white'; ctx.fillText(`Time: ${Math.ceil(timeAttackRemaining)}s`, window.innerWidth - 120, 30);
+  }
+}
+
+// events & UI wiring
+startNow.addEventListener('click', ()=>{ startGame('endless'); });
+startTimeAttack.addEventListener('click', ()=>{ startGame('time'); });
+startBtn.addEventListener('click', ()=>{ if(startScreen.classList.contains('visible')) startGame('endless'); });
+pauseBtn.addEventListener('click', togglePause);
+restartBtn.addEventListener('click', ()=>{
+  gameOverScreen.classList.remove('visible'); startGame(mode);
+});
+toMenuBtn.addEventListener('click', ()=>{
+  gameOverScreen.classList.remove('visible');
+  startScreen.classList.add('visible');
+});
+modeBtn.addEventListener('click', ()=>{
+  mode = (mode==='endless' ? 'time' : 'endless');
+  modeBtn.textContent = 'Mode: ' + (mode==='endless' ? 'Endless' : 'Time Attack');
+});
+muteBtn.addEventListener('click', ()=>{
+  muted = !muted; muteBtn.textContent = muted ? '🔇' : '🔊';
+});
+leaderboardBtn.addEventListener('click', ()=>{
+  showLeaderboard();
+});
+closeLb.addEventListener('click', ()=>{ leaderboardModal.style.display='none'; });
+
+// Listen for start screen making visible when page loads
+startScreen.classList.add('visible');
+
+// helper to increment score visible & update DOM
+setInterval(()=>{
+  // running update: keep score in DOM
+  scoreEl.textContent = score;
+  highEl.textContent = hiScore;
+}, 250);
+
+// also allow enabling tilt via long press on start
+// quick permission attempt
+tryEnableTilt();
+
+// small accessibility: keyboard start with Enter
+window.addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter' && startScreen.classList.contains('visible')) startGame('endless');
+});
+
+// Save local leaderboard at end via endGame function
+// Ensure player spawn
+spawnPlayer();
+
+// initial HUD status
+refreshPowerupsHUD();
+
+// Tiny improvement: resume audio context on first user gesture
+document.addEventListener('pointerdown', function initAudioOnce(){
+  document.removeEventListener('pointerdown', initAudioOnce);
+  ensureAudio();
+  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+});
+
+// final note: if user wants further refinement, we can separate modules,
+// add real external sprites, more polished audio, remote leaderboard, and replay/ghost.
+</script>
+
+</body>
+</html>
